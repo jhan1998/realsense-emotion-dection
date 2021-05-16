@@ -55,10 +55,11 @@ cv2.ocl.setUseOpenCL(False)
 
 # dictionary which assigns each label an emotion (alphabetical order)
 emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
-
+pos_neg = {0: "Positive", 1: "Negative"}
 # Start streaming
 pipeline.start(config)
-
+count = 0
+curr_emo = 0
 try:
     while True:
 
@@ -82,7 +83,17 @@ try:
             cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
             prediction = model.predict(cropped_img)
             maxindex = int(np.argmax(prediction))
-            cv2.putText(color_image, emotion_dict[maxindex], (x+20, y-60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            if maxindex in [0,1,2,5]:
+                emotion_index = 0
+            else:
+                emotion_index = 1
+            if curr_emo == emotion_index:
+                count = 5 if count >= 5 else (count + 1)
+            else:
+                curr_emo = emotion_index
+                count = 1
+            if count == 5:
+                cv2.putText(color_image, pos_neg[emotion_index], (x+20, y-60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
         cv2.imshow('RealSense', cv2.resize(color_image,(1600,960),interpolation = cv2.INTER_CUBIC))
