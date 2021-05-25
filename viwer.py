@@ -84,9 +84,9 @@ try:
             prediction = model.predict(cropped_img)
             maxindex = int(np.argmax(prediction))
             if maxindex in [0,1,2,5]:
-                emotion_index = 0
-            else:
                 emotion_index = 1
+            else:
+                emotion_index = 0
             if curr_emo == emotion_index:
                 count = 5 if count >= 5 else (count + 1)
             else:
